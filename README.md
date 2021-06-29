@@ -1,10 +1,10 @@
 # surfs_up
 Analyzing weather data using Python, SQLite, Flask
 ## Overview:
-In this challenge we were given the task to use python and .  
+In this challenge we were given the task to use python and the library SQLAlchemy to analyze weather data to help determine if it is ideal to open a surf and ice cream shop in Oahu. We will be using python and the libraries to perform analysis on SQLite data to show the business is sustainable.  
 
 ## Purpose:
-The purpose of this challenge is to introduce what is an ETL and what purpsoe does it serve in data analytics. An ETL is only one of many pipelines that can be created for data wrangling. This challenge was set to enhance our python skills by allowing us to demonstrate functions using list comprehension and lambda functions. We also had to use our judgement as analysis to determine which data we should use and what alterations we had to do on our regex strings to fit the most data. 
+The purpose of this challenge is familiarizing ourselves with SQLAlchemy and the different python libraries. We used python to connect to a SQLite local database and retrieve the data to perform our analysis. Once we have established a link via SQLAlchemy we can query the data using different methods. The data will come in the form of an object in which we have to turn into a list then we can use pandas to create a dataframe. We also had an introduction to flask and creating an API for potential business partners. 
 
 ## Resources
 * Data Source: hawaii.sqlite
@@ -12,25 +12,36 @@ The purpose of this challenge is to introduce what is an ETL and what purpsoe do
 
 ## Analysis:
 ### Overview of Analysis:
-ETL's are an important part of what a Data Analyst have to do. I have heard from many analysts that cleaning the data is the longest and most tedious part. Extracting useable data and determining outliers in a dataset of over 200,000 lines is extremely difficult but important. Consistency of the dataset is key and the main takeaway from this module. There are many approaches to data wrangling and the methods we used are only but a few.  
+The analysis of this project was pretty simple. There wasn't any complex algorithm needed or complex statistical model used. We simply used the normal measure of central tendency. This was found by using the .describe() pandas function. The journey of this analysis came from using the session.query() method from the sqlalchemy.orm library. We had to create a session to our sqlite database and query the data we wanted. In this case we wanted the temperature data for June. We selected the data we wanted then filtered the results. 
 
 ### Results:
-The results can be seen in the .ipynb files. We went from a messy data set from wikipedia and was able to transform it into something useable. We were able to extrac the data we needed into a dataframe that shared similar columns with our kaggle dataset. We then had to merge our wiki data with the kaggle. We did some analysis of each and in comparison to each other to see which dataset we trust more. We ened up using the kaggle dataset for a majority of the columns, but because we were able to extract and clean the wikipedia dataset; we were then able to fill the missing rows from the kaggle with the wiki. Finally we uploaded the dataframes into tables into Postgres using SQLAlchemy. 
+The results were as expected. In June the temperature on average is warmer with a standard deviation of 3. In December the temperature is cooler but only by 3 degrees. This just goes to show that the temperature is pretty consistent in Oahu and is a great place to open a surf/ice cream shop. 
 
-See below for the count results of count in Postgres:
+See below for the summary statistics of June and December:
 
-![SQL Ratings Count](https://github.com/lo7kyle/Movies-ETL/blob/main/Resources/Ratings%20import%20count.PNG) 
+![June Statistics](https://github.com/lo7kyle/surfs_up/blob/main/Resources/June_statistics.PNG) 
 
-![SQL movies Count](https://github.com/lo7kyle/Movies-ETL/blob/main/Resources/movies_df%20import%20count.PNG) 
+![December Statistics](https://github.com/lo7kyle/surfs_up/blob/main/Resources/December_statistics.PNG) 
 
 
 
 ### Summary:
-This was by far the most fun challenge yet. I enjoy coding and creating complex functions. I also enjoy learning by struggling. There were many topics such as list comprehension,lambda functions, and regex that I struggled with but now understand a little more. Seeing the different tools python offers that other languages don't just shows how powerful python is for data science and analytics. I spent hours trying to get the below python list comprehension nested lambda function right and when it worked I was thrilled. As mentioned, ETL is only one of many pipelining methods that employers look for. 
+In summary the results were as expected with an unexpected month of December cementing the idea of opening a surf and ice cream shop. Although the Min temperature in December is 56, you might still be able to surf with a wet suit. The ice cream sales might be down, but with an average mean of 71 degrees surfing still will be a common sport. Below are two additional queries that might be used to calculate the temperature and precipitation based on dates. This will help when planning a trip to Hawaii. Precipitation matters more importantly than weather because in Hawaii it is known to rain randomly. Knowing how often it rains will affect surfing and ice cream sales. 
 
 ``` python
-    column_filter = [col for col in movies_df.columns if len(movies_df[col].apply(
-        lambda x: tuple(x) if type(x) == list else x).value_counts(dropna=False)) == 1]
-    movies_df.drop(columns = column_filter, axis=1, inplace=True)
+   def calc_temps(start_date, end_date):
+	    results = []
+	    results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+	    filter(start_date >= Measurement.date).\
+	    filter(Measurement.date >= end_date).all()
+	    return results
+``` 
+
+```python
+   def calc_precip(start_date, end_date):
+	    results = []
+	    results = session.query(func.min(Measurement.precipitation), func.max(Measurement.precipitation), func.avg(Measurement.precipitation)).\
+	    filter(start_date >= Measurement.date).\
+	    filter(Measurement.date >= end_date).all()
+	    return results
 ```
-Top code block returns columns that has only 1 value. 
